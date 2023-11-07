@@ -9,7 +9,7 @@ BIN_DIR :=
 
 export TOPDIR BUILD_DIR_ROOT BIN_DIR_ROOT BIN_DIR BUILD_DIR
 # TODO 链接脚本路径, 头文件搜索路径 Begin
-LDPATH :=
+LDPATH := imx6ull.lds
 
 # 头文件搜索路径
 INCDIRS :=
@@ -58,7 +58,7 @@ WARNFLAGS += -Wmissing-prototypes -Wstrict-prototypes
 #   -fexec-charset=gbk : 告诉编译器在生成可执行文件时使用 GBK 字符集, 用于支持中文
 CHARENCODINGFLAGS := -fexec-charset=gbk
 
-CFLAGS := -fomit-frame-pointer
+CFLAGS := -fomit-frame-pointer -fno-builtin
 CFLAGS += $(WARNFLAGS) $(CHARENCODINGFLAGS)
 
 CPPFLAGS:=
@@ -66,9 +66,8 @@ CPPFLAGS:=
 
 # TODO 链接选项 Beign
 # 链接选项
-# LDFLAGS := -T$(LDPATH)
 # -nostdlib 不链接标准库
-LDFLAGS := -nostdlib
+LDFLAGS := -nostdlib -T $(LDPATH) -g
 # TODO 链接选项 End
 export CFLAGS LDFLAGS INCFLAGS CPPFLAGS
 # === 面向目标平台不同硬件架构的交叉编译工具链设置 End
@@ -101,7 +100,7 @@ $(BIN_DIR):
 # 如果使用 CC 编译链接, 则会自动链接标准库文件, 如果使用 LD 则不会自动链接标准库文件
 $(BIN_DIR)/$(TARGET).bin : start_recursive_build
 	@echo "Building executable: $@"
-	$(LD) $(LDFLAGS) -o $(BIN_DIR)/$(TARGET).elf $(wildcard **/*.o)
+	$(LD) $(LDFLAGS) -o $(BIN_DIR)/$(TARGET).elf $(shell find . -type f -name "*.o")
 	$(OBJCOPY) -O binary -S $(BIN_DIR)/$(TARGET).elf $@
 	$(OBJDUMP) -D -m arm $(BIN_DIR)/$(TARGET).elf > $(BIN_DIR)/$(TARGET).dis
 

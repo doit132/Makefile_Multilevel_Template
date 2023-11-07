@@ -21,6 +21,10 @@ distclean:
 	rm -f $(shell find -name "*.bin")
 # rm -f $(BIN_DIR)/$(TARGET).elf $(BIN_DIR)/$(TARGET).dis $(BIN_DIR)/$(TARGET).bin
 
+.PHONY: copy_target
+copy_target:
+	cp -f $(BIN_DIR)/$(TARGET).bin /mnt/d/Users/Desktop/
+
 .PHONY: help
 help:
 	@printf "\
