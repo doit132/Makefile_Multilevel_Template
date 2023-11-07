@@ -1,0 +1,53 @@
+PHONY := __build
+__build:
+
+obj-y :=
+subdir-y :=
+EXTRA_CFLAGS :=
+
+include Makefile
+
+# 从 obj-y 提取出当前目录下的 obj 和子目录, 下面就是一个实例 \
+   	obj-y := a.o b.o c/ d/ e/f/  \
+   		含义: 最终编译链接到一块的 .o 文件, 当前目录下的 a.o b.o 文件和 c d e/f 目录下的 .o 文件 \
+   	$(filter %/, $(obj-y)) \
+		含义: 提取出 obj-y 中的c/ d/ 目录 \
+	__subdir-y               \
+		含义: 定义一个变量, 让 __subdir-y 等于当前目录下的子目录, 不包含孙子目录, __subdir-y := c d \
+	subdir-y \
+		含义: 定义一个变量, 让 subdir-y 等于所有的子目录, 包含了孙子目录, 也就是说 c d 目录下的子目录也包含进来
+__subdir-y	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
+subdir-y	+= $(__subdir-y)
+
+# a.o b.o, 提取出当前 Makefile 目录下的 .o 文件
+# $(filter-out %/, $(obj-y)) 函数的作用是从 $(obj-y) 变量中筛选出不以斜杠字符结尾的字符序列，即筛选出不是目录名的目标对象文件
+cur_objs := $(filter-out %/, $(obj-y))
+
+# 如果 cur_objs 包含 main.o，那么 dep_files 将被赋值为 ./main.o.d，表示依赖文件(depend)的路径
+dep_files := $(foreach f,$(cur_objs),.$(f).d)
+# 如果 dep_files 包含 ./main.o.d 和 ./src/bsp.o.d 这两个路径，并且这两个路径都存在相应的文件, 那么 $(wildcard $(dep_files)) 将返回 ./main.o.d ./src/bsp.o.d
+dep_files := $(wildcard $(dep_files))
+
+ifneq ($(dep_files),)
+  include $(dep_files)
+endif
+
+PHONY += $(subdir-y)
+
+__build : $(subdir-y) $(cur_objs)
+
+# - 在 Makefile.build 中设置编译规则
+#   - 当目标是一个目录的时候, 怎么编译?
+#   - 如何编译当前目录中的文件?
+
+# 规则 1: 编译子目录的规则
+$(subdir-y):
+	$(MAKE) -C $@ -f $(TOPDIR)/Makefile.build
+
+# 规则 2: 编译当前目录下的文件
+%.o : %.c
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) -Wp,-MD,$(dep_file) -c -o $@ $<
+
+dep_file = .$@.d
+
+.PHONY : $(PHONY)
