@@ -1,4 +1,4 @@
-# === 在不同操作系统上进行编译的针对性选项 Begin
+# === 在不同操作系统上进行编译的针对性选项
 # 检测当前编译平台使用的操作系统
 ifeq ($(OS),Windows_NT) # OS is a preexisting environment variable on Windows
 	OS = windows
@@ -53,8 +53,8 @@ ifeq ($(OS),windows)
 endif
 
 # OS-specific build, bin, and assets directories
-BUILD_DIR := $(BUILD_DIR_ROOT)/$(OS)
-BIN_DIR := $(BIN_DIR_ROOT)/$(OS)
+BUILD_DIR := $(BUILD_ROOT_DIR)/$(OS)
+BIN_DIR := $(BIN_ROOT_DIR)/$(OS)
 ifeq ($(OS),windows)
 	# Windows 32-bit
 	ifeq ($(win32),1)
@@ -67,4 +67,3 @@ ifeq ($(OS),windows)
 	endif
 endif
 
-# === 在不同操作系统上进行编译的针对性选项 End

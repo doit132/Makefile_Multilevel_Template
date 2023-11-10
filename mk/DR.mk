@@ -1,4 +1,4 @@
-# === Debug Or Release 模式 Begin
+# === Debug Or Release 模式
 # Debug (default) and release modes settings
 ifeq ($(release),1)
 	BUILD_DIR := $(BUILD_DIR)/release
@@ -11,4 +11,3 @@ else
 	CFLAGS += -O0 -g
 	CPPFLAGS += -O0 -g
 endif
-# === Debug Or Release 模式 End

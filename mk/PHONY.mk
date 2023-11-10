@@ -1,5 +1,5 @@
 
-# === 伪目标 Begin
+# === 伪目标
 .PHONY: clean
 clean:
 # make -C drivers clean
@@ -10,7 +10,7 @@ clean:
 	rm -f $(shell find -name "*.elf")
 	rm -f $(shell find -name "*.bin")
 	rm -f $(shell find -name "*.dis")
-# rm -f $(BIN_DIR)/$(TARGET).elf $(BIN_DIR)/$(TARGET).dis $(BIN_DIR)/$(TARGET).bin
+# rm -f $(BIN_DIR)/$(TARGET_NAME).elf $(BIN_DIR)/$(TARGET_NAME).dis $(BIN_DIR)/$(TARGET_NAME).bin
 
 .PHONY: distclean
 distclean:
@@ -19,11 +19,11 @@ distclean:
 	rm -f $(shell find -name "*.dis")
 	rm -f $(shell find -name "*.elf")
 	rm -f $(shell find -name "*.bin")
-# rm -f $(BIN_DIR)/$(TARGET).elf $(BIN_DIR)/$(TARGET).dis $(BIN_DIR)/$(TARGET).bin
+# rm -f $(BIN_DIR)/$(TARGET_NAME).elf $(BIN_DIR)/$(TARGET_NAME).dis $(BIN_DIR)/$(TARGET_NAME).bin
 
 .PHONY: copy_target
 copy_target:
-	cp -f $(BIN_DIR)/$(TARGET).bin /mnt/d/Users/Desktop/
+	cp -f $(BIN_DIR)/$(TARGET_NAME).bin /mnt/d/Users/Desktop/
 
 .PHONY: help
 help:
@@ -65,10 +65,9 @@ printvars:
 	WARNFLAGS:     \"$(WARNFLAGS)\"\n\
 	CFLAGS:        \"$(CFLAGS)\"\n\
 	LDFLAGS:       \"$(LDFLAGS)\"\n\
-	TARGET:        \"$(TARGET)\"\n"
+	TARGET_NAME:        \"$(TARGET_NAME)\"\n"
 .PHONY: time
 time:
 	echo "start test time"
 	@time make
-# === 伪目标 End
 

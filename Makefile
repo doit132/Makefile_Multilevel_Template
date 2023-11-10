@@ -1,22 +1,14 @@
-# === 各种路径变量 Begin
-# 当前 makefile 所在的文件路径, 也是项目的根目录
-TOPDIR := $(shell pwd)
+include mk/VarDeclare.mk
+include mk/VarConfirm.mk
 
-BUILD_DIR_ROOT = build
 BUILD_DIR :=
-BIN_DIR_ROOT = bin
 BIN_DIR :=
 
-export TOPDIR BUILD_DIR_ROOT BIN_DIR_ROOT BIN_DIR BUILD_DIR
+export BIN_DIR BUILD_DIR
 # TODO 链接脚本路径, 头文件搜索路径 Begin
 LDPATH := imx6ull.lds
 
-# 头文件搜索路径
-INCDIRS :=
-# TODO 链接脚本路径, 头文件搜索路径 End
-# === 各种路径变量 End
-
-# === 面向目标平台不同硬件架构的交叉编译工具链设置 Begin
+# === 面向目标平台不同硬件架构的交叉编译工具链设置
 ARCH  ?= arm
 CROSS_COMPILE ?= arm-linux-
 
@@ -30,18 +22,12 @@ AS  	= $(CROSS_COMPILE)as
 LD  	= $(CROSS_COMPILE)ld
 CPP     = $(CC) -E
 AR      = $(CROSS_COMPILE)ar
-NM	= $(CROSS_COMPILE)nm
+NM	    = $(CROSS_COMPILE)nm
 STRIP	= $(CROSS_COMPILE)strip
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 
-export AS LD CC CPP AR NM
-export STRIP OBJCOPY OBJDUMP
-
-# 函数的作用是将 INCDIRS 变量中的每个元素（目录名）前面加上 -I, 以构建用于指定头文件搜索路径的参数
-INCFLAGS := $(patsubst %, -I %, $(INCDIRS))
-
-# == 编译选项 Begin
+# == 编译选项
 # 警告选项
 # 	-Wall : 开启所有常见的警告提示 \
   	-Wextra : 开启额外的警告提示, 包括一些非常规的代码风格和一些潜在的问题 \
@@ -58,19 +44,16 @@ WARNFLAGS += -Wmissing-prototypes -Wstrict-prototypes
 #   -fexec-charset=gbk : 告诉编译器在生成可执行文件时使用 GBK 字符集, 用于支持中文
 CHARENCODINGFLAGS := -fexec-charset=gbk
 
-CFLAGS := -fomit-frame-pointer -fno-builtin
-CFLAGS += $(WARNFLAGS) $(CHARENCODINGFLAGS)
+CFLAGS += -fomit-frame-pointer -fno-builtin
+CFLAGS += $(WARNFLAGS) $(CHARENCODINGFLAGS) $(INCFLAGS)
 
-CPPFLAGS:=
-# == 编译选项 End
+CPPFLAGS +=
 
 # TODO 链接选项 Beign
 # 链接选项
 # -nostdlib 不链接标准库
 LDFLAGS := -nostdlib -T $(LDPATH) -g
 # TODO 链接选项 End
-export CFLAGS LDFLAGS INCFLAGS CPPFLAGS
-# === 面向目标平台不同硬件架构的交叉编译工具链设置 End
 
 # 在不同操作系统上进行编译的针对性选项
 include mk/OS.mk
@@ -79,7 +62,7 @@ include mk/DR.mk
 
 # TODO 被编译的目录, 被编译的当前目录下的文件 Beign
 # 编译目标文件的名称
-TARGET := test
+TARGET_NAME := test
 
 # 被编译的当前目录下的文件
 obj-y +=
@@ -91,20 +74,20 @@ obj-y += example/test03/
 obj-y += src/
 # TODO 被编译的目录, 被编译的当前目录下的文件 End
 
-all : $(BIN_DIR) $(BIN_DIR)/$(TARGET).bin
-	@echo $(TARGET) has been built!
+all : $(BIN_DIR) $(BIN_DIR)/$(TARGET_NAME).bin
+	@echo $(TARGET_NAME) has been built!
 
 $(BIN_DIR):
 	@mkdir -p $(@D)
 
 # 如果使用 CC 编译链接, 则会自动链接标准库文件, 如果使用 LD 则不会自动链接标准库文件
-$(BIN_DIR)/$(TARGET).bin : start_recursive_build
+$(BIN_DIR)/$(TARGET_NAME).bin : start_recursive_build
 	@echo "Building executable: $@"
-	$(LD) $(LDFLAGS) -o $(BIN_DIR)/$(TARGET).elf $(shell find . -type f -name "*.o")
-	$(OBJCOPY) -O binary -S $(BIN_DIR)/$(TARGET).elf $@
-	$(OBJDUMP) -D -m arm $(BIN_DIR)/$(TARGET).elf > $(BIN_DIR)/$(TARGET).dis
+	$(LD) $(LDFLAGS) -o $(BIN_DIR)/$(TARGET_NAME).elf $(shell find . -type f -name "*.o")
+	$(OBJCOPY) -O binary -S $(BIN_DIR)/$(TARGET_NAME).elf $@
+	$(OBJDUMP) -D -m arm $(BIN_DIR)/$(TARGET_NAME).elf > $(BIN_DIR)/$(TARGET_NAME).dis
 
 start_recursive_build:
-	$(MAKE) -C ./ -f $(TOPDIR)/Makefile.build
+	$(MAKE) -C ./ -f $(PROJECT_ABS_ROOT_DIR)/Makefile.build
 
 include mk/PHONY.mk

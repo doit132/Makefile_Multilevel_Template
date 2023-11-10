@@ -42,7 +42,7 @@ __build : $(subdir-y) $(cur_objs)
 
 # 规则 1: 编译子目录的规则
 $(subdir-y):
-	$(MAKE) -C $@ -f $(TOPDIR)/Makefile.build
+	$(MAKE) -C $@ -f $(PROJECT_ABS_ROOT_DIR)/Makefile.build
 
 # 规则 2: 编译当前目录下的文件
 %.o : %.c
